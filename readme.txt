@@ -51,7 +51,7 @@ modules/depselect
 2. Add the following to the [_modules] section of your app's conf.ini
 file:
 
-modules_depselect=modules/depselect/summary.php
+modules_depselect=modules/depselect/depselect.php
 
 Usage:
 ======
@@ -97,4 +97,12 @@ Support:
 ========
 
 http://xataface.com/forum
+
+Credits:
+========
+
+- This module was developed by Steve Hannah (steve@weblite.ca).
+- This widget makes heavy use of jQuery to help with DOM interaction.  (http://www.jquery.com).
+- jQuery UI is used to provide a more user-friendly experience.  In particular it's internal dialog module is used for adding records to the depselects.  (http://jqueryui.com/)
+
 

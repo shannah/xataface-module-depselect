@@ -131,6 +131,11 @@ TBA
 <a href="http://xataface.com/forum">http://xataface.com/forum</a>
 
 
+@section credits Credits:
+
+- This module was developed by Steve Hannah (steve@weblite.ca).
+- This widget makes heavy use of jQuery to help with DOM interaction.  (<a href="http://www.jquery.com">http://jquery.com</a>).
+- jQuery UI is used to provide a more user-friendly experience.  In particular it's internal dialog module is used for adding records to the depselects.  (<a href="http://jqueryui.com/">http://jqueryui.com</a>)
 
 */
 ?>
