@@ -185,7 +185,7 @@ class actions_depselect_load {
 				if ( @$field['widget']['ignore_permissions'] ){
 					$r->secureDisplay = false;
 				} else {
-					if ( !$r->checkPermission('view') ) continue;
+					//if ( !$r->checkPermission('view') ) continue;
 					if ( !$r->checkPermission('view', array('field'=>$keyCol))) continue;
 					if ( $labelCol and !$r->checkPermission('view', array('field'=>$labelCol))) continue;
 				}
