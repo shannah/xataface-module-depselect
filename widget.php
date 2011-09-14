@@ -1,5 +1,4 @@
 <?php
-import('Dataface/FormTool/select.php');
 /*
  * Xataface DepSelect Module
  * Copyright (C) 2011  Steve Hannah <steve@weblite.ca>
@@ -32,7 +31,7 @@ import('Dataface/FormTool/select.php');
  * it knows of its existence.
  *
  */
-class Dataface_FormTool_depselect extends Dataface_FormTool_select {
+class Dataface_FormTool_depselect  {
 
 	/**
 	 * Defines how a depselect widget should be built.
@@ -46,10 +45,12 @@ class Dataface_FormTool_depselect extends Dataface_FormTool_select {
 	 *
 	 */
 	function &buildWidget(&$record, &$field, &$form, $formFieldName, $new=false){
-		$el = parent::buildWidget($record, $field, $form, $formFieldName, $new);
+		$factory = Dataface_FormTool::factory();
 		$mt = Dataface_ModuleTool::getInstance();
 		$mod = $mt->loadModule('modules_depselect');
-		$atts = $el->getAttributes();
+		//$atts = $el->getAttributes();
+		$widget =& $field['widget'];
+		$atts = array();
 		if ( !@$atts['class'] ) $atts['class'] = '';
 		$atts['class'] .= ' xf-depselect';
 		if ( !@$atts['data-xf-table'] ){
@@ -92,7 +93,10 @@ class Dataface_FormTool_depselect extends Dataface_FormTool_select {
 			$atts['data-xf-depselect-nomatch'] = $field['widget']['nomatch'];
 		}
 		
-		$el->setAttributes($atts);
+		//$el->setAttributes($atts);
+		$el = $factory->addElement('text', $formFieldName, $widget['label'], $atts);
+		if ( PEAR::isError($el) ) throw new Exception($el->getMessage(), $el->getCode());
+		
 	
 		return $el;
 	}

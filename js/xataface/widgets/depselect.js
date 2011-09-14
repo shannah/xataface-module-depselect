@@ -61,7 +61,7 @@
 	 *
 	 */
 	function updateValuesFor(select, filters){
-	
+		var selector = $(select).parent().find('select.xf-depselect-selector').get(0);
 		var tablename = $(select).attr("data-xf-table");
 		var fieldname = $(select).attr('data-xf-field');
 		
@@ -96,9 +96,10 @@
 				if ( res.code == 200 ){
 				
 					var currVal = $(select).val();
-					select.options.length=1;
+					//alert(selector);
+					selector.options.length=1;
 					$.each(res.values, function(key,val){
-						$(select).append(
+						$(selector).append(
 							$('<option></option>')
 								.attr('value', key)
 								.text(val)
@@ -106,6 +107,8 @@
 					});
 					
 					$(select).val(currVal);
+					$(selector).val(currVal);
+
 				} else {
 					if ( res.message ) throw res.message;
 					else throw 'Failed to load values for field '+fieldname+' because of an unspecified server error.';
@@ -176,9 +179,25 @@
 	 */
 	registerXatafaceDecorator(function(node){
 		
-		$('select.xf-depselect', node).each(function(){
+		$('input.xf-depselect', node).each(function(){
 			
 			var self = this;
+			
+			$(self).hide();
+			var select = $('<select></select>')
+				.addClass('xf-depselect-selector')
+				.change(function(){
+					$(self).val($(this).val());
+					$(self).trigger('change');
+				})
+				.append(
+					$('<option></option>')
+						.attr('text','Please select...')
+						.attr('value', '')
+				)
+				.insertAfter(self);
+			
+			
 			var filtersAttr = $(this).attr('data-xf-depselect-filters');
 			var filters = {};
 			filtersAttr = filtersAttr.split('&');
@@ -220,7 +239,7 @@
 					.click(function(){
 						addOptionFor(self, filters);
 					})
-					.insertAfter(self);
+					.insertAfter(select);
 			}
 			
 			
