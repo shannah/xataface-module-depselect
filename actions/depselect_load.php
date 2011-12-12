@@ -191,10 +191,17 @@ class actions_depselect_load {
 				}
 				
 				if ( $labelCol ){
-					$out[$r->val($keyCol)] = $r->display($labelCol);
+					$temp = array (
+						($r->val($keyCol))=>($r->display($labelCol))
+					);
+					
 				} else {
-					$out[$r->val($keyCol)] = $r->getTitle();
+					$temp = array (
+						($r->val($keyCol))=>($r->getTitle())
+					);
 				}
+				$out[] = $temp;
+				
 			
 			}
 			

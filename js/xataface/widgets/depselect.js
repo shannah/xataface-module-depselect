@@ -99,12 +99,16 @@
 					//alert(selector);
 					selector.options.length=1;
 					$.each(res.values, function(key,val){
-						$(selector).append(
-							$('<option></option>')
-								.attr('value', key)
-								.text(val)
-						);
+						$.each(val, function(k,v){
+							$(selector).append(
+								$('<option></option>')
+								.attr('value', k)
+								.text(v)
+							);
+						});
+						
 					});
+					
 					
 					$(select).val(currVal);
 					$(selector).val(currVal);
