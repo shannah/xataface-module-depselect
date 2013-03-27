@@ -98,7 +98,11 @@ class actions_depselect_load {
 		
 		$app = Dataface_Application::getInstance();
 		$query = $app->getQuery();
-		$table = Dataface_Table::loadTable($query['-table']);
+		$tableName = $query['-table'];
+		if ( @$query['--depselect-table'] ){
+		    $tableName = $query['--depselect-table'];
+		}
+		$table = Dataface_Table::loadTable($tableName);
 		$field = $table->getField($query['-field']);
 		//$table = Dataface_Table::loadTable($field['widget']['table']);
 		$this->loadFromTable($table, $field, $query);

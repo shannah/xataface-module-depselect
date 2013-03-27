@@ -62,9 +62,9 @@ class Dataface_FormTool_depselect  {
 			throw new Exception("Your field $formFieldName is missing the widget:table directive or the table does not exist.");
 		}
 		$targetPerms = $targetTable->getPermissions();
-		if ( @$targetPerms['new'] ){
+		//if ( @$targetPerms['new'] ){
 			$atts['data-xf-depselect-options-table'] = $field['widget']['table'];
-		}
+		//}
 		$atts['df:cloneable'] = 1;
 		
 		

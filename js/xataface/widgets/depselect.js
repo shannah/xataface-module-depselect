@@ -68,7 +68,9 @@
 		var url = DATAFACE_SITE_HREF;
 		var q = {
 			'-action': 'depselect_load',
-			'-table': tablename,
+			//'-table': tablename,
+			'--depselect-table' : tablename,
+			'-table' : $(select).attr('data-xf-depselect-options-table'),
 			'-field': fieldname
 		};
 		
