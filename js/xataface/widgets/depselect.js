@@ -237,7 +237,7 @@
 			});
 			
 			
-			if ( $(self).attr("data-xf-depselect-options-table") ){
+			if ( $(self).attr("data-xf-depselect-perms-new") ){
 				// We only add this button if the user has permission 
 				// to add new records to the target table.
 				$('<a><img src="'+DATAFACE_URL+'/images/add_icon.gif"/></a>')
