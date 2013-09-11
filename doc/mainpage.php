@@ -86,7 +86,7 @@ To configure a field to use the depselect widget, just set its fields.ini file w
 	<tr>
 		<td>widget:filters:xyz</td><td>Filters to apply to queries to load the options.  This can be any valid Xataface GET parameter in accordance with the Xataface URL conventions.</td>
 	</tr>
-	<tr>
+        <tr>
 		<td>widget:keycol</td><td>(Optional)  The name of the column to treat as the id or key column.</td>
 	</tr>
 	<tr>
@@ -118,7 +118,48 @@ In the following example we have a city field that is dependent on the province 
 @endcode
 
 @see http://xataface.com/wiki/fields.ini_file For more information about fields.ini file directives.
-   
+ 
+@section filters Filters:
+ 
+The key to the depselect widget lies in the widget:filters directive which specifies either a static or a dynamic filter that can be used to filter the options in the depselect widget.  A static filter is just
+any string that will be used to filter the particular field of the table specified by the widget:table directive.  With a static filter (or no filter), the depselect will behave essentially the same
+as a standard select widget.  You can make the widget dependent upon the selected value of another field in the form by using a dynamic filter.  A dynamic filter specifies the name of another field
+in the form whose value should be used to filter the options in this depselect widget.  It is signified by a "$" prefix followed by the name of the field whose value we wish to filter on.
+
+In the previous examples, the province_id field uses a dynamic filter on the country_id field.  It indicates that it will only include options from the provinces table whose country_id field matches the selection of the
+country_id field on this form.
+
+@section default_filters Default Filters:
+
+In cases where you have specified a dynamic filter on the depselect, you may want to specify an alternate filter to use in the case where the field upon which the depselect depends has not been selected or is left blank.  
+You can signify this default filter by piping it to the dynamic filter.  I.e. Using the "|" notation.  E.g.
+
+@code
+[country_id]
+	widget:type=depselect
+	widget:table=countries
+	
+[province_id]
+	widget:type=depselect
+	widget:table=provinces
+	widget:filters:country_id="$country_id|0"
+@endcode
+
+In this example the province field will be filtered on the value of the country_id field if it has a value selected.  Otherwise it will just show the provinces
+with country_id=0.
+
+You can also use Xataface URL conventions for this default filter.  E.g.
+@code
+widget:filters:country_id="$country_id|"
+@endcode
+
+This says that the default search is an "empty" search.  Which will return all of the provinces.  You could also search for all provinces with nonempty country_id values:
+
+@code
+widget:filters:country_id="$country_id|>"
+@endcode
+
+Note: Default filters were added version 0.2
 
 @section more More Reading
 

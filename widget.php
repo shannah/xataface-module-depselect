@@ -68,8 +68,7 @@ class Dataface_FormTool_depselect  {
 		}
 		$atts['df:cloneable'] = 1;
 		
-		
-		
+                
 		$jt = Dataface_JavascriptTool::getInstance();
 		$jt->addPath(dirname(__FILE__).'/js', $mod->getBaseURL().'/js');
 		

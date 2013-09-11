@@ -75,14 +75,23 @@
 		};
 		
 		$.each(filters, function(key,val){
+                        var defaultFilter = '=';
 			if ( !key ) return;
-			if ( val.indexOf('$') == 0 ){
+			if ( val.indexOf('$') === 0 ){
 				var fname = val.substr(1);
+                                if ( fname.indexOf('|') !== -1  ){
+                                    var fnameParts = fname.split(/\|/);
+                                    fname = fnameParts[0];
+                                    
+                                    defaultFilter = fnameParts[1];
+                                    
+                                    
+                                }
 				var field = findField(select, fname);
 				if ( field && $(field).val() ){
 					q[key] = $(field).val();
 				} else {
-					q[key] = '=';
+					q[key] = defaultFilter;
 				}
 			} else {
 				
@@ -146,6 +155,13 @@
 			if ( !key ) return;
 			if ( val.indexOf('$') == 0 ){
 				var fname = val.substr(1);
+                                var defaultFilter = '';
+                                 if ( fname.indexOf('|') !== -1  ){
+                                    var fnameParts = fname.split('|');
+                                    fname = fnameParts[0];
+                                    defaultFilter = fnameParts[1];
+                                    
+                                }
 				var field = findField(select, fname);
 				if ( field && $(field).val() ){
 					q[key] = $(field).val();
@@ -221,6 +237,10 @@
 				if ( val.indexOf('$') == 0 ){
 					// It is a variable
 					var depField = val.substr(1);
+                                        if ( depField.indexOf('|') !== -1 ){
+                                            var depFieldParts = depField.split('|');
+                                            depField = depFieldParts[0];
+                                        }
 					var field = findField(self, depField);
 					//alert(depField);
 					if ( !field ) return;
