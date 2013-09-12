@@ -108,6 +108,9 @@
 				
 					var currVal = $(select).val();
                                         var currLabel = $('option[value="'+currVal+'"]', selector).text();
+                                        if ( currVal && !currLabel ){
+                                            currVal = currLabel;
+                                        }
                                         //alert(selector);
 					selector.options.length=1;
                                         var currValInSet = false;
