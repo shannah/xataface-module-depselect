@@ -107,10 +107,15 @@
 				if ( res.code == 200 ){
 				
 					var currVal = $(select).val();
-					//alert(selector);
+                                        var currLabel = $('option[value="'+currVal+'"]', selector).text();
+                                        //alert(selector);
 					selector.options.length=1;
+                                        var currValInSet = false;
 					$.each(res.values, function(key,val){
 						$.each(val, function(k,v){
+                                                        if ( (""+currVal) === (""+k)){
+                                                            currValInSet = true;
+                                                        }
 							$(selector).append(
 								$('<option></option>')
 								.attr('value', k)
@@ -120,6 +125,13 @@
 						
 					});
 					
+                                        if ( (""+currVal) && currLabel  && !currValInSet){
+                                            $(selector).append(
+                                                $('<option></option>')
+                                                .attr('value', currVal)
+                                                .text(currLabel)
+                                            );
+                                        }
 					
 					$(select).val(currVal);
 					$(selector).val(currVal);
