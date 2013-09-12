@@ -109,7 +109,7 @@
 					var currVal = $(select).val();
                                         var currLabel = $('option[value="'+currVal+'"]', selector).text();
                                         if ( currVal && !currLabel ){
-                                            currVal = currLabel;
+                                            currLabel = currVal;
                                         }
                                         //alert(selector);
 					selector.options.length=1;
