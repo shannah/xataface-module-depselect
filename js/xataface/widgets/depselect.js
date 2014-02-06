@@ -217,12 +217,16 @@
 	registerXatafaceDecorator(function(node){
 		
 		$('input.xf-depselect', node).each(function(){
-			
+			if ( $(this).attr('data-depselect-isdecorated') ){
+			    $(this).parent().find('.depselect-fragment').remove();
+			}
+			$(this).attr('data-depselect-isdecorated', 1);
 			var self = this;
 			
 			$(self).hide();
 			var select = $('<select></select>')
 				.addClass('xf-depselect-selector')
+				.addClass('depselect-fragment')
 				.change(function(){
 					$(self).val($(this).val());
 					$(self).trigger('change');
@@ -275,7 +279,7 @@
 			if ( $(self).attr("data-xf-depselect-perms-new") ){
 				// We only add this button if the user has permission 
 				// to add new records to the target table.
-				$('<a><img src="'+DATAFACE_URL+'/images/add_icon.gif"/></a>')
+				$('<a class="depselect-fragment"><img src="'+DATAFACE_URL+'/images/add_icon.gif"/></a>')
 					.addClass('xf-depselect-add-btn')
 					.click(function(){
 						addOptionFor(self, filters);
