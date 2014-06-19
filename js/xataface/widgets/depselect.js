@@ -41,14 +41,6 @@
 	 */
 	function findField(startNode, fieldName){
 		return XataJax.form.findField(startNode, fieldName);
-		/*
-		var parentGroup = $(startNode).parents('.xf-form-group').get(0);
-		if ( !parentGroup ) parentGroup = $(startNode).parents('form').get(0);
-		if ( !parentGroup ) return null;
-		//alert('here');
-		var fld = $('[data-xf-field="'+fieldName+'"]', parentGroup).get(0);
-		return fld;
-		*/
 	}
 	
 	
@@ -236,7 +228,7 @@
 				})
 				.append(
 					$('<option></option>')
-						.attr('text','Please select...')
+						.text('Please select...')
 						.attr('value', '')
 				)
 				.insertAfter(self);
