@@ -264,7 +264,14 @@
 					// changes.
 					$(field).change(function(){
 						//alert('value changed');
+						var oldVal = $(self).val();
+						$(self).val('');
 						updateValuesFor(self, filters);
+						if ( $('option[value="'+oldVal+'"]', self).length > 0 ){
+							$(self).val(oldVal);
+						} else {
+							$(self).trigger('change');
+						}
 					});
 				}
 			
