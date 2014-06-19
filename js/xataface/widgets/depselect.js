@@ -24,6 +24,7 @@
 //require <jquery-ui.min.js>
 //require-css <jquery-ui/jquery-ui.css>
 //require <RecordDialog/RecordDialog.js>
+//require <xatajax.form.core.js>
 //require-css <xataface/widgets/depselect.css>  
 (function(){
 	var $ = jQuery;
@@ -39,13 +40,15 @@
 	 * @return {HTMLElement} The found field or null if it cannot find it.
 	 */
 	function findField(startNode, fieldName){
-		
+		return XataJax.form.findField(startNode, fieldName);
+		/*
 		var parentGroup = $(startNode).parents('.xf-form-group').get(0);
 		if ( !parentGroup ) parentGroup = $(startNode).parents('form').get(0);
 		if ( !parentGroup ) return null;
 		//alert('here');
 		var fld = $('[data-xf-field="'+fieldName+'"]', parentGroup).get(0);
 		return fld;
+		*/
 	}
 	
 	
