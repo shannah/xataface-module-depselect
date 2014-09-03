@@ -28,6 +28,10 @@
  *
  * @param string -table The name of the table where the depselect field resides.
  * @param string -field The name of the depselect field.
+ * OR
+ * @param string -field A field with a format string and fields to display enclosed in single quotes.
+ *                      The format field need to be in double quotes.
+ *                      The format is equal to (s)printf (e.g. '"%s %s, %s", f1, f2, f3').
  * @return JSON A JSON data structure of the following form:
  * @code
  * {
@@ -170,7 +174,7 @@ class actions_depselect_load {
 			//}
 			$keyCol = null;
 			$labelCol = null;
-			
+			$multiLabel = null;
 			if ( @$field['widget']['keycol'] ){
 				$keyCol = $field['widget']['keycol'];
 			} else {
@@ -182,7 +186,14 @@ class actions_depselect_load {
 			
 			if ( @$field['widget']['labelcol'] ){
 				$labelCol = $field['widget']['labelcol'];
-			}
+			} else if ( @$field['widget']['multilabelformat'] ){
+            $multiLabel = $field['widget']['multilabelformat'];
+            $params = explode('"',$multiLabel);
+            // The first array elements are empty due to the first '"' and ','.
+            $format = $params[1];
+            $colums = explode(',', $params[2]);
+            array_shift($colums);
+         }
 			
 			$out = array();
 			foreach ($records as $r){
@@ -199,7 +210,12 @@ class actions_depselect_load {
 						($r->val($keyCol))=>($r->display($labelCol))
 					);
 					
-				} else {
+				} else if ( $multiLabel ) {
+               $values = array();
+               foreach ( $colums as $field )
+                   $values[] = $r->display(trim($field));
+               $temp = array(($r->val($keyCol)) => (vsprintf($format, $values)));
+            } else {
 					$temp = array (
 						($r->val($keyCol))=>($r->getTitle())
 					);
