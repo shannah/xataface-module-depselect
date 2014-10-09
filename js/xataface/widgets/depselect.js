@@ -55,7 +55,8 @@
 	 * 		means that it should be substituted with the value of that field.
 	 *
 	 */
-	function updateValuesFor(select, filters){
+	function updateValuesFor(select, filters, callback){
+	   callback = callback || function(){};
 		var selector = $(select).parent().find('select.xf-depselect-selector').get(0);
 		var tablename = $(select).attr("data-xf-table");
 		var fieldname = $(select).attr('data-xf-field');
@@ -133,6 +134,7 @@
 					
 					$(select).val(currVal);
 					$(selector).val(currVal);
+					callback();
 
 				} else {
 					if ( res.message ) throw res.message;
@@ -158,6 +160,48 @@
 	function addOptionFor(select, filters){
 		var tableName = $(select).attr("data-xf-depselect-options-table");
 		if ( !tableName ) return;
+		
+		var marginW=undefined;
+		var marginH=undefined;
+		var dialogWidth=undefined;
+		var dialogHeight=undefined;
+		
+   
+      
+      if ( $(select).attr('data-xf-depselect-dialogSize') ){
+         var dialogSize = $(select).attr('data-xf-depselect-dialogSize');
+         var parts = dialogSize.split(',');
+         if ( parts[0].indexOf('%') === parts[0].length-1 ){
+            dialogWidth = jQuery(window).width()*parseInt(parts[0].substring(0, parts[0].length-1))/100.0;
+         } else {
+            dialogWidth = parseInt(parts[0]);
+         }
+         
+         if ( parts[1].indexOf('%') === parts[1].length-1 ){
+            dialogHeight = jQuery(window).width()*parseInt(parts[1].substring(0, parts[1].length-1))/100.0;
+         } else {
+            dialogHeight = parseInt(parts[1]);
+         }
+         
+      }
+      
+      if ( $(select).attr('data-xf-depselect-dialogMargin') ){
+         var dialogMargin = $(select).attr('data-xf-depselect-dialogMargin');
+         var parts = dialogMargin.split(',');
+         if ( parts[0].indexOf('%') === parts[0].length-1 ){
+            marginW = jQuery(window).height()*parseInt(parts[0].substring(0, parts[0].length-1))/100.0;
+         } else {
+            marginW = parseInt(parts[0]);
+         }
+         
+         if ( parts[1].indexOf('%') === parts[1].length-1 ){
+            marginH = jQuery(window).height()*parseInt(parts[1].substring(0, parts[1].length-1))/100.0;
+         } else {
+            marginH = parseInt(parts[1]);
+         }
+         
+      }
+			
 		
 		var q = {};
 		
@@ -188,10 +232,27 @@
 			table: tableName,
 			callback: function(data){
 			
-				updateValuesFor(select, filters);
+				updateValuesFor(select, filters, function(){
+				   var selector = $(select).parent().find('select.xf-depselect-selector').get(0);
+               var currVal = null;
+               $('option', selector).each(function(){
+                  if ( currVal ){
+                     return;
+                  }
+                  if ( $(this).text() == data.__title__ ){
+                     currVal = $(this).attr('value');
+                  }
+               });
+               $(selector).val(currVal);
+               $(select).val(currVal);
+				});
 				
 			},
-			params: q
+			params: q,
+			width: dialogWidth,
+			height: dialogHeight,
+			marginW : marginW,
+			marginH : marginH
 		
 		});
 		
@@ -222,6 +283,8 @@
 			var select = $('<select></select>')
 				.addClass('xf-depselect-selector')
 				.addClass('depselect-fragment')
+				.attr('data-xf-depselect-dialogMargin', $(self).attr('data-xf-depselect-dialogMargin'))
+				.attr('data-xf-depselect-dialogSize', $(self).attr('data-xf-depselect-dialogSize'))
 				.change(function(){
 					$(self).val($(this).val());
 					$(self).trigger('change');

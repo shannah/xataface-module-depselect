@@ -93,9 +93,18 @@ class Dataface_FormTool_depselect  {
 			$atts['data-xf-depselect-nomatch'] = $field['widget']['nomatch'];
 		}
 		
+		
+		if ( @$field['widget']['dialogSize'] ){
+		   $atts['data-xf-depselect-dialogSize'] = $field['widget']['dialogSize'];
+		}
+		
+		if ( @$field['widget']['dialogMargin'] ){
+		   $atts['data-xf-depselect-dialogMargin'] = $field['widget']['dialogMargin'];
+		}
 		//$el->setAttributes($atts);
 		$el = $factory->addElement('text', $formFieldName, $widget['label'], $atts);
 		if ( PEAR::isError($el) ) throw new Exception($el->getMessage(), $el->getCode());
+		
 		
 	
 		return $el;
