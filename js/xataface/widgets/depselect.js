@@ -255,8 +255,11 @@
                      currVal = $(this).attr('value');
                   }
                });
+               console.log("setting currval");
+               console.log(currVal);
                $(selector).val(currVal);
                $(select).val(currVal);
+               $(selector).change();
 				});
 				
 			},
