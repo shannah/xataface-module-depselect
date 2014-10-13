@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Xataface Depselect Module
  * Copyright (C) 2011  Steve Hannah <steve@weblite.ca>
@@ -19,7 +20,7 @@
  * Boston, MA  02110-1301, USA.
  *
  */
- 
+
 /**
  * @brief An HTTP REST action to load the options for a particular depselect field.  Returns JSON
  * data.
@@ -32,6 +33,9 @@
  * @param string -field A field with a format string and fields to display enclosed in single quotes.
  *                      The format field need to be in double quotes.
  *                      The format is equal to (s)printf (e.g. '"%s %s, %s", f1, f2, f3').
+ * @param string -depselect-single-value If present, indicates that this should return only a single
+ *                      value.
+ * @param string -depselect-id The ID of the single value to obtain.
  * @return JSON A JSON data structure of the following form:
  * @code
  * {
@@ -44,26 +48,29 @@
  * @subsection statuscodes Status Codes
  *
  * <table>
- *		<tr>
- *			<th>Code</th>
- *			<th>Meaning</th>
- *		</tr>
- *		<tr>
- *			<td>200</th>
- *			<td>Success.  The values should be contained in the 'values' property.</td>
- *		</tr>
- *		<tr>
- *			<td>401</td>
- *			<td>Permission Denied.  The user doesn't have permission to access these values.  In order
- *				to access this action, the user must either have edit or new permission on the 
- *				source table (i.e. the table containing the depselect field).
- *			</td>
- *		</tr>
- *		<tr>
- *			<td>500</td>
- *			<td>Server Error or Configuration Error.  Check the server error log for details.</td>
- *		</tr>
- *	</table>
+ * 		<tr>
+ * 			<th>Code</th>
+ * 			<th>Meaning</th>
+ * 		</tr>
+ * 		<tr>
+ * 			<td>200</th>
+ * 			<td>Success.  The values should be contained in the 'values' property.
+ *                          If -depselect-single-value is specified, then the single value
+ *                          will be in the 'value' property.
+ *                      </td>
+ * 		</tr>
+ * 		<tr>
+ * 			<td>401</td>
+ * 			<td>Permission Denied.  The user doesn't have permission to access these values.  In order
+ * 				to access this action, the user must either have edit or new permission on the 
+ * 				source table (i.e. the table containing the depselect field).
+ * 			</td>
+ * 		</tr>
+ * 		<tr>
+ * 			<td>500</td>
+ * 			<td>Server Error or Configuration Error.  Check the server error log for details.</td>
+ * 		</tr>
+ * 	</table>
  *
  * @subsection samplevalues Sample Values Object
  *
@@ -75,184 +82,236 @@
  * {
  *     1: 'Option #1',
  *     2: 'Option #2',
- *	.. etc...
+ * 	.. etc...
  * }
  * @endcode
  */
 class actions_depselect_load {
 
+    /**
+     * @brief Returns  the default error message for when a server error has occurred.
+     * @param string $fieldname The name of the depselect field on which the error occurred.
+     * @return string The full error message.
+     */
+    static function errorMessage($fieldname) {
 
-	/**
-	 * @brief Returns  the default error message for when a server error has occurred.
-	 * @param string $fieldname The name of the depselect field on which the error occurred.
-	 * @return string The full error message.
-	 */
-	static function errorMessage($fieldname){
-	
-		return "Failed to load values for field '".$fieldname."'.  See server error log for details.";
-	}
+        return "Failed to load values for field '" . $fieldname . "'.  See server error log for details.";
+    }
 
-	/**
-	 * @brief Handles the HTTP request.  Outputs the JSON response.
-	 */
-	function handle($params){
-	
-		session_write_close();
-		header('Connection: close');
-		
-		$app = Dataface_Application::getInstance();
-		$query = $app->getQuery();
-		$tableName = $query['-table'];
-		if ( @$query['--depselect-table'] ){
-		    $tableName = $query['--depselect-table'];
-		}
-		$table = Dataface_Table::loadTable($tableName);
-		$field = $table->getField($query['-field']);
-		//$table = Dataface_Table::loadTable($field['widget']['table']);
-		$this->loadFromTable($table, $field, $query);
-		
-	}
-	
-	
-	/**
-	 * @brief Loads the values for a particular field in a particular table.
-	 *
-	 * This method is delegated to by handle() for cleanliness purposes.
-	 *
-	 * @param Dataface_Table $table The table where the depselect field resides.
-	 * @param array &$field The field definition of the depselect field.
-	 * @param array $query The current GET parameters.
-	 * 
-	 */
-	private function loadFromTable(Dataface_Table $table, &$field, $query){
-		
-		try {
-			
-			$perms = $table->getPermissions(array('field'=>$field['name']));
-			if ( !@$perms['edit'] and !@$perms['new'] ){
-				// The user doesn't have permission to edit the column... so we 
-				// need to cut off access right now!!!
-				error_log("Insufficient permissions to access field $field[name] by current user.");
-				throw new Exception("Failed to get options for field $filed[name] because you don't have view permission for this field.", 401);
-			
-			}
-			
-			
-			
-			
-			if ( !@$field['widget']['table'] ){
-				error_log("widget:table not defined for field ".$field['name']." of table ".$table->tablename.".");
-				throw new Exception(self::errorMessage($fieldname), 500);
-			}
-			$targetTable = Dataface_Table::loadTable($field['widget']['table']);
-			
-			$filters = array();
-			if ( @$field['widget']['filters']  and is_array($field['widget']['filters'])){
-				foreach ($field['widget']['filters'] as $key=>$val){
-					if ( isset($query[$key]) ){
-						$filters[$key]=$query[$key];
-					} else if ( strpos($val,'$') === 0 ){
-						$filters[$key] = '=';
-					} else {
-						$filters[$key] = $val;
-					}
-				}
-			}
-			
-			
-			
-			$limit = 250;
-			if ( @$field['widget']['limit'] ){
-				$limit = intval($field['widget']['limit']);
-			}
-			
-			$filters['-limit'] = $limit;
-			$records = df_get_records_array($field['widget']['table'], $filters);
-			//if ( count($filters) > 1 ){
-			//	echo "Num records found: ".count($records);
-			//	print_r($filters);
-			//}
-			$keyCol = null;
-			$labelCol = null;
-			$multiLabel = null;
-			if ( @$field['widget']['keycol'] ){
-				$keyCol = $field['widget']['keycol'];
-			} else {
-				foreach ($targetTable->keys() as $k=>$v){
-					$keyCol = $k;
-					break;
-				}
-			}
-			
-			if ( @$field['widget']['labelcol'] ){
-				$labelCol = $field['widget']['labelcol'];
-			} else if ( @$field['widget']['multilabelformat'] ){
-            $multiLabel = $field['widget']['multilabelformat'];
-            $params = explode('"',$multiLabel);
-            // The first array elements are empty due to the first '"' and ','.
-            $format = $params[1];
-            $colums = explode(',', $params[2]);
-            array_shift($colums);
-         }
-			
-			$out = array();
-			foreach ($records as $r){
-				if ( @$field['widget']['ignore_permissions'] ){
-					$r->secureDisplay = false;
-				} else {
-					//if ( !$r->checkPermission('view') ) continue;
-					if ( !$r->checkPermission('view', array('field'=>$keyCol))) continue;
-					if ( $labelCol and !$r->checkPermission('view', array('field'=>$labelCol))) continue;
-				}
-				
-				if ( $labelCol ){
-					$temp = array (
-						($r->val($keyCol))=>($r->display($labelCol))
-					);
-					
-				} else if ( $multiLabel ) {
-               $values = array();
-               foreach ( $colums as $field )
-                   $values[] = $r->display(trim($field));
-               $temp = array(($r->val($keyCol)) => (vsprintf($format, $values)));
+    /**
+     * @brief Handles the HTTP request.  Outputs the JSON response.
+     */
+    function handle($params) {
+
+        session_write_close();
+        header('Connection: close');
+
+        $app = Dataface_Application::getInstance();
+        $query = $app->getQuery();
+        $tableName = $query['-table'];
+        if (@$query['--depselect-table']) {
+            $tableName = $query['--depselect-table'];
+        }
+        $table = Dataface_Table::loadTable($tableName);
+        $field = $table->getField($query['-field']);
+        //$table = Dataface_Table::loadTable($field['widget']['table']);
+        if ( @$query['-depselect-single-value'] ){
+            $this->loadSingle($table, $field, $query);
+        } else {
+            $this->loadFromTable($table, $field, $query);
+        }
+    }
+
+    function loadSingle(Dataface_Table $table, &$field, $query) {
+        try {
+            if ( !@$query['-depselect-id']){
+                throw new Exception("Please specify the -depselect-id parameter");
+            }
+            $perms = $table->getPermissions(array('field' => $field['name']));
+            if (!@$perms['view']) {
+                error_log("Insufficient permissions to access field $field[name] by current user.");
+                throw new Exception("Failed to get value for depselect because you don't have view permission");
+            }
+            $targetTable = Dataface_Table::loadTable($field['widget']['table']);
+            $keyCol = null;
+            $labelCol = null;
+            if (@$field['widget']['keycol']) {
+                $keyCol = $field['widget']['keycol'];
             } else {
-					$temp = array (
-						($r->val($keyCol))=>($r->getTitle())
-					);
-				}
-				$out[] = $temp;
-				
-			
-			}
-			
-			$this->out(array(
-				'code'=>200,
-				'message'=>'Received default valuelist',
-				'values'=>$out
-			));
-			exit;
-			
-		
-		} catch (Exception $ex){
-		
-			$this->out(array(
-				'code'=>$ex->getCode(),
-				'message'=>$ex->getMessage()
-			));
-			exit;
-		}
-	
-	}
-	
-	
-	/**
-	 * @brief Outputs content as JSON.  Outputs headers as necessary.
-	 */
-	private function out($params){
-		header('Content-type: text/json; charset="'.Dataface_Application::getInstance()->_conf['oe'].'"');
-		echo json_encode($params);
-	}
-	
-	
-	
+                foreach ($targetTable->keys() as $k => $v) {
+                    $keyCol = $k;
+                    break;
+                }
+            }
+            if (!$keyCol) {
+                throw new Exception("No key column found in table " . $field['widget']['table']);
+            }
+            
+            $rec = df_get_record($field['widget']['table'], array(
+               $keyCol => '='.$query['-depselect-id'] 
+            ));
+            
+            if ( !$rec ){
+                throw new Exception("No such record found", 404);
+            }
+            
+            $value = null;
+            if (@$field['widget']['ignore_permissions']) {
+                $rec->secureDisplay = false;
+            }
+            if ( $labelCol ){
+                $value = $rec->display($labelCol);
+            } else {
+                $value = $rec->getTitle();
+            }
+            
+            $this->out(array(
+                'code' => 200,
+                'message' => 'Value successfully found',
+                'value' => $value
+            ));
+            exit;
+            
+        } catch (Exception $ex) {
+            $this->out(array(
+                'code' => $ex->getCode(),
+                'message' => $ex->getMessage()
+            ));
+            exit;
+        }
+    }
+
+    /**
+     * @brief Loads the values for a particular field in a particular table.
+     *
+     * This method is delegated to by handle() for cleanliness purposes.
+     *
+     * @param Dataface_Table $table The table where the depselect field resides.
+     * @param array &$field The field definition of the depselect field.
+     * @param array $query The current GET parameters.
+     * 
+     */
+    private function loadFromTable(Dataface_Table $table, &$field, $query) {
+
+        try {
+
+            $perms = $table->getPermissions(array('field' => $field['name']));
+            if (!@$perms['edit'] and ! @$perms['new']) {
+                // The user doesn't have permission to edit the column... so we 
+                // need to cut off access right now!!!
+                error_log("Insufficient permissions to access field $field[name] by current user.");
+                throw new Exception("Failed to get options for field $filed[name] because you don't have view permission for this field.", 401);
+            }
+
+
+
+
+            if (!@$field['widget']['table']) {
+                error_log("widget:table not defined for field " . $field['name'] . " of table " . $table->tablename . ".");
+                throw new Exception(self::errorMessage($fieldname), 500);
+            }
+            $targetTable = Dataface_Table::loadTable($field['widget']['table']);
+
+            $filters = array();
+            if (@$field['widget']['filters'] and is_array($field['widget']['filters'])) {
+                foreach ($field['widget']['filters'] as $key => $val) {
+                    if (isset($query[$key])) {
+                        $filters[$key] = $query[$key];
+                    } else if (strpos($val, '$') === 0) {
+                        $filters[$key] = '=';
+                    } else {
+                        $filters[$key] = $val;
+                    }
+                }
+            }
+
+
+
+            $limit = 250;
+            if (@$field['widget']['limit']) {
+                $limit = intval($field['widget']['limit']);
+            }
+
+            $filters['-limit'] = $limit;
+            $records = df_get_records_array($field['widget']['table'], $filters);
+            //if ( count($filters) > 1 ){
+            //	echo "Num records found: ".count($records);
+            //	print_r($filters);
+            //}
+            $keyCol = null;
+            $labelCol = null;
+            $multiLabel = null;
+            if (@$field['widget']['keycol']) {
+                $keyCol = $field['widget']['keycol'];
+            } else {
+                foreach ($targetTable->keys() as $k => $v) {
+                    $keyCol = $k;
+                    break;
+                }
+            }
+
+            if (@$field['widget']['labelcol']) {
+                $labelCol = $field['widget']['labelcol'];
+            } else if (@$field['widget']['multilabelformat']) {
+                $multiLabel = $field['widget']['multilabelformat'];
+                $params = explode('"', $multiLabel);
+                // The first array elements are empty due to the first '"' and ','.
+                $format = $params[1];
+                $colums = explode(',', $params[2]);
+                array_shift($colums);
+            }
+
+            $out = array();
+            foreach ($records as $r) {
+                if (@$field['widget']['ignore_permissions']) {
+                    $r->secureDisplay = false;
+                } else {
+                    //if ( !$r->checkPermission('view') ) continue;
+                    if (!$r->checkPermission('view', array('field' => $keyCol)))
+                        continue;
+                    if ($labelCol and ! $r->checkPermission('view', array('field' => $labelCol)))
+                        continue;
+                }
+
+                if ($labelCol) {
+                    $temp = array(
+                        ($r->val($keyCol)) => ($r->display($labelCol))
+                    );
+                } else if ($multiLabel) {
+                    $values = array();
+                    foreach ($colums as $field)
+                        $values[] = $r->display(trim($field));
+                    $temp = array(($r->val($keyCol)) => (vsprintf($format, $values)));
+                } else {
+                    $temp = array(
+                        ($r->val($keyCol)) => ($r->getTitle())
+                    );
+                }
+                $out[] = $temp;
+            }
+
+            $this->out(array(
+                'code' => 200,
+                'message' => 'Received default valuelist',
+                'values' => $out
+            ));
+            exit;
+        } catch (Exception $ex) {
+
+            $this->out(array(
+                'code' => $ex->getCode(),
+                'message' => $ex->getMessage()
+            ));
+            exit;
+        }
+    }
+
+    /**
+     * @brief Outputs content as JSON.  Outputs headers as necessary.
+     */
+    private function out($params) {
+        header('Content-type: text/json; charset="' . Dataface_Application::getInstance()->_conf['oe'] . '"');
+        echo json_encode($params);
+    }
+
 }

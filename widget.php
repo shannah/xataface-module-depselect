@@ -19,6 +19,11 @@
  * Boston, MA  02110-1301, USA.
  *
  */
+
+$GLOBALS['HTML_QUICKFORM_ELEMENT_TYPES']['depselect'] = array(
+    'modules/depselect/HTML/QuickForm/depselect.php', 
+    'HTML_QuickForm_depselect'
+);
 /**
  * @brief A Dataface_FormTool wrapper for building depselect widgets in Dataface_QuickForm forms.
  *
@@ -102,7 +107,7 @@ class Dataface_FormTool_depselect  {
 		   $atts['data-xf-depselect-dialogMargin'] = $field['widget']['dialogMargin'];
 		}
 		//$el->setAttributes($atts);
-		$el = $factory->addElement('text', $formFieldName, $widget['label'], $atts);
+		$el = $factory->addElement('depselect', $formFieldName, $widget['label'], $atts);
 		if ( PEAR::isError($el) ) throw new Exception($el->getMessage(), $el->getCode());
 		
 		
