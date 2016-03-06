@@ -96,7 +96,6 @@
                 q[key] = val;
             }
         });
-
         $.get(url, q, function (res) {
             try {
                 if (typeof (res) === 'string') {
@@ -261,8 +260,6 @@
                             currVal = $(this).attr('value');
                         }
                     });
-                    console.log("setting currval");
-                    console.log(currVal);
                     $(selector).val(currVal);
                     $(select).val(currVal);
                     $(selector).change();
@@ -386,12 +383,15 @@
                         //alert('value changed');
                         var oldVal = $(self).val();
                         $(self).val('');
-                        updateValuesFor(self, filters);
-                        if ($('option[value="' + oldVal + '"]', self).length > 0) {
-                            $(self).val(oldVal);
-                        } else {
-                            $(self).trigger('change');
-                        }
+                        updateValuesFor(self, filters, function() {
+                            if ($('option[value="' + oldVal + '"]', select).length > 0) {
+                                $(select).val(oldVal);
+                                $(self).val(oldVal);
+                            } else {
+                                $(self).trigger('change');
+                            }
+                        });
+                        
                     });
                 }
 
@@ -408,11 +408,6 @@
                         })
                         .insertAfter(select);
             }
-
-
-
-
-
             // Initialize the values to begin with.
             updateValuesFor(self, filters);
 
