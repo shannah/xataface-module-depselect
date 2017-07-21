@@ -1,0 +1,10 @@
+{
+  "author": "Steve Hannah",
+  "description": "Dependent select widget for Xataface apps",
+  "main": "index.js",
+  "repository": "",
+  "version": "0.2.0",
+  "license": "ISC",
+  "name": "xataface-module-xataface-module-depselect",
+  "scripts": {"test": "echo \"Error: no test specified\" && exit 1"}
+}
