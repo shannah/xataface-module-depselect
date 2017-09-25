@@ -87,7 +87,7 @@
                 }
                 var field = findField(select, fname);
                 if (field && $(field).val()) {
-                    q[key] = $(field).val();
+                    q[key] = '='.$(field).val();
                 } else {
                     q[key] = defaultFilter;
                 }
