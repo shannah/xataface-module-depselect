@@ -320,7 +320,6 @@
      * on those widgets.
      */
     registerXatafaceDecorator(function (node) {
-
         $('input.xf-depselect', node).each(function () {
             if ( $(this).attr('data-depselect-frozen')){
                 installFrozen(this);
@@ -379,14 +378,24 @@
                     // We want to listen or changes to this field
                     // so that we can update our values whenever the field
                     // changes.
+                    var lastGoodVal = null;
+                    
                     $(field).change(function () {
                         //alert('value changed');
                         var oldVal = $(self).val();
+                        var triggerChange = false;
+                        if (oldVal) {
+                            lastGoodVal = oldVal;
+                        } else {
+                            oldVal = lastGoodVal;
+                            triggerChange = true;
+                        }
                         $(self).val('');
                         updateValuesFor(self, filters, function() {
                             if ($('option[value="' + oldVal + '"]', select).length > 0) {
                                 $(select).val(oldVal);
                                 $(self).val(oldVal);
+                                if (triggerChange) $(self).trigger('change');
                             } else {
                                 $(self).trigger('change');
                             }
