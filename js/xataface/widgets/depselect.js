@@ -354,6 +354,7 @@
             filtersAttr = filtersAttr.split('&');
             $.each(filtersAttr, function () {
                 var parts = this.split('=');
+				if (parts.length < 2) return;
                 filters[decodeURIComponent(parts[0].replace(/\+/g, " "))] = decodeURIComponent(parts[1].replace(/\+/g, " "));
             });
 
