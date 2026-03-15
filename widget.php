@@ -106,6 +106,10 @@ class Dataface_FormTool_depselect  {
 		if ( @$field['widget']['dialogMargin'] ){
 		   $atts['data-xf-depselect-dialogMargin'] = $field['widget']['dialogMargin'];
 		}
+
+		if ( @$field['widget']['displayType'] ){
+		   $atts['data-xf-depselect-display-type'] = $field['widget']['displayType'];
+		}
 		//$el->setAttributes($atts);
 		$el = $factory->addElement('depselect', $formFieldName, $widget['label'], $atts);
 		if ( PEAR::isError($el) ) throw new Exception($el->getMessage(), $el->getCode());
