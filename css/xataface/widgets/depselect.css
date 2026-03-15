@@ -3,3 +3,32 @@ body.large a.xf-depselect-add-btn {
 	cursor: pointer;
 	position: absolute;
 }
+
+.xf-depselect-checkbox-container {
+	display: inline-block;
+	max-height: 200px;
+	overflow-y: auto;
+	border: 1px solid #ccc;
+	padding: 5px;
+	min-width: 200px;
+}
+
+.xf-depselect-checkbox-label {
+	display: block;
+	padding: 2px 0;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.xf-depselect-checkbox-label:hover {
+	background-color: #f0f0f0;
+}
+
+.xf-depselect-checkbox {
+	margin-right: 4px;
+}
+
+.xf-depselect-nomatch {
+	color: #999;
+	font-style: italic;
+}
